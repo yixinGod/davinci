@@ -68,4 +68,14 @@ public class LoadSupportDataSourceRunner implements ApplicationRunner {
 
         supportDatasourceList.sort(Comparator.comparing(DatasourceType::getName));
     }
+
+    public static void main(String[] args) {
+        for (DataTypeEnum dataTypeEnum : DataTypeEnum.values()) {
+            System.out.println(dataTypeEnum.getFeature());
+        }
+//        run(null)
+        List<DatasourceType> list = LoadSupportDataSourceRunner.getSupportDatasourceList();
+        System.out.println("");
+
+    }
 }

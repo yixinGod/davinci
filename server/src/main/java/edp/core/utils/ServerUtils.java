@@ -53,6 +53,15 @@ public class ServerUtils {
     @Value("${file.base-path}")
     private String basePath;
 
+    @Value("${server.valid}")
+    private String serverValid;
+
+    public String getValidUrl(){
+        if (!StringUtils.isEmpty(serverValid)) {
+            return "http://davinci.aws.dealmoon.net/";
+        }
+        return serverValid;
+    }
     public String getHost() {
 
         String pro = protocol.trim().toLowerCase();

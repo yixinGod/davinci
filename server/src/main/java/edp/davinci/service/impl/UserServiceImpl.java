@@ -412,7 +412,8 @@ public class UserServiceImpl extends BaseEntityService implements UserService {
 
         Map<String, Object> content = new HashMap<String, Object>();
         content.put("username", user.getUsername());
-        content.put("host", serverUtils.getHost());
+//        content.put("host", serverUtils.getHost());
+        content.put("host", serverUtils.getValidUrl());//"http://davinci.aws.dealmoon.net/"
         content.put("token", AESUtils.encrypt(tokenUtils.generateContinuousToken(user), null));
 
         MailContent mailContent = MailContent.MailContentBuilder.builder()
