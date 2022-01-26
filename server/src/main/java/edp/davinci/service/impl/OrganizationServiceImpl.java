@@ -405,7 +405,8 @@ public class OrganizationServiceImpl extends BaseEntityService implements Organi
         List<User> users = new ArrayList<>();
         Set<String> notUsers = new HashSet<>();
         for (String member : members) {
-            User currentUser = userMapper.selectByUsername(member);
+//            User currentUser = userMapper.selectByUsername(member);
+            User currentUser = userMapper.getById(Long.parseLong(member));
             if(currentUser != null) {
                 users.add(currentUser);
             } else {
