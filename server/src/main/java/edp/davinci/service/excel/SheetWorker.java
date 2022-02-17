@@ -20,6 +20,7 @@
 package edp.davinci.service.excel;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import edp.core.enums.DataTypeEnum;
 import edp.core.model.QueryColumn;
@@ -101,7 +102,14 @@ public class SheetWorker<T> extends AbstractSheetWriter implements Callable {
                 for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                     dataMap.put(SqlUtils.getColumnLabel(queryFromsAndJoins, rs.getMetaData().getColumnLabel(i)), rs.getObject(rs.getMetaData().getColumnLabel(i)));
                 }
-                writeLine(context, dataMap);
+
+                //所有query列，不在query的列设置默认值
+                List<String> queryColumnNames = Lists.newArrayList();
+                context.getQueryColumns().forEach(queryColumn -> {
+                    queryColumnNames.add(queryColumn.getName());
+                });
+
+                writeLine(context, dataMap,queryColumnNames);
                 count.incrementAndGet();
             });
 

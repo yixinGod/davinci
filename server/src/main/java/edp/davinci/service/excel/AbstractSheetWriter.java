@@ -20,6 +20,7 @@
 package edp.davinci.service.excel;
 
 import com.alibaba.druid.util.StringUtils;
+import com.google.common.collect.Lists;
 import edp.core.enums.SqlTypeEnum;
 import edp.core.model.QueryColumn;
 import edp.core.utils.CollectionUtils;
@@ -33,11 +34,9 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static edp.core.consts.Consts.EMPTY;
 
@@ -89,6 +88,13 @@ public abstract class AbstractSheetWriter {
 
     protected void writeHeader(SheetContext context) throws Exception {
         if (context.getIsTable() && !CollectionUtils.isEmpty(context.getExcelHeaders())) {
+
+            //所有query列，不在query的列设置默认值
+            List<String> queryColumnNames = Lists.newArrayList();
+            context.getQueryColumns().forEach(queryColumn -> {
+                queryColumnNames.add(queryColumn.getName());
+            });
+
             int rownum = 0;
             int colnum = 0;
             Map<String, QueryColumn> columnMap = context.getQueryColumns().stream().collect(Collectors.toMap(x -> x.getName(), x -> x, (v1, v2) -> v1));
@@ -155,8 +161,8 @@ public abstract class AbstractSheetWriter {
             }
         } else {
             Row row = context.getSheet().createRow(nextRowNum++);
-            for (int i = 0; i < context.getQueryColumns().size(); i++) {
-                QueryColumn queryColumn = context.getQueryColumns().get(i);
+            for (int i = 0; i < context.getTotalColumns().size(); i++) {
+                QueryColumn queryColumn = context.getTotalColumns().get(i);
                 columnWidthMap.put(queryColumn.getName(), Math.max(queryColumn.getName().getBytes().length, queryColumn.getType().getBytes().length));
                 Cell cell = row.createCell(i);
                 cell.setCellStyle(header);
@@ -166,8 +172,8 @@ public abstract class AbstractSheetWriter {
         //添加数据类型行
         if (context.getContain()) {
             Row row = context.getSheet().createRow(nextRowNum++);
-            for (int i = 0; i < context.getQueryColumns().size(); i++) {
-                String type = context.getQueryColumns().get(i).getType();
+            for (int i = 0; i < context.getTotalColumns().size(); i++) {
+                String type = context.getTotalColumns().get(i).getType();
                 if (context.getIsTable()) {
                     type = SqlTypeEnum.VARCHAR.getName();
                 }
@@ -176,12 +182,17 @@ public abstract class AbstractSheetWriter {
         }
     }
 
-    protected void writeLine(SheetContext context, Map<String, Object> dataMap) {
+    protected void writeLine(SheetContext context, Map<String, Object> dataMap,List<String> queryColumnNames) {
         Row row = context.getSheet().createRow(nextRowNum++);
-        for (int j = 0; j < context.getQueryColumns().size(); j++) {
-            QueryColumn queryColumn = context.getQueryColumns().get(j);
+
+
+        for (int j = 0; j < context.getTotalColumns().size(); j++) {
+            QueryColumn queryColumn = context.getTotalColumns().get(j);
             myDefault.setDataFormat(format.getFormat("@"));
             Object value = dataMap.get(queryColumn.getName());
+            if (!queryColumnNames.contains(queryColumn.getName())){
+                value = "-";
+            }
             Cell cell = row.createCell(j);
             if (null != value) {
                 if (value instanceof Number || queryColumn.getType().equals("value")) {
