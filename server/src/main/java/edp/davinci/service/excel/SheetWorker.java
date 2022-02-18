@@ -84,6 +84,12 @@ public class SheetWorker<T> extends AbstractSheetWriter implements Callable {
             	template.setFetchSize(Integer.MIN_VALUE);
             }
 
+            //所有query列，不在query的列设置默认值
+            List<String> queryColumnNames = Lists.newArrayList();
+            context.getQueryColumns().forEach(queryColumn -> {
+                queryColumnNames.add(queryColumn.getName());
+            });
+
             String sql = context.getQuerySql().get(context.getQuerySql().size() - 1);
             sql = SqlParseUtils.rebuildSqlWithFragment(sql);
             md5 = MD5Util.getMD5(sql, true, 16);
@@ -102,12 +108,6 @@ public class SheetWorker<T> extends AbstractSheetWriter implements Callable {
                 for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                     dataMap.put(SqlUtils.getColumnLabel(queryFromsAndJoins, rs.getMetaData().getColumnLabel(i)), rs.getObject(rs.getMetaData().getColumnLabel(i)));
                 }
-
-                //所有query列，不在query的列设置默认值
-                List<String> queryColumnNames = Lists.newArrayList();
-                context.getQueryColumns().forEach(queryColumn -> {
-                    queryColumnNames.add(queryColumn.getName());
-                });
 
                 writeLine(context, dataMap,queryColumnNames);
                 count.incrementAndGet();

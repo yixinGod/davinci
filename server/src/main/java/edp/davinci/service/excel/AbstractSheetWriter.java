@@ -88,13 +88,6 @@ public abstract class AbstractSheetWriter {
 
     protected void writeHeader(SheetContext context) throws Exception {
         if (context.getIsTable() && !CollectionUtils.isEmpty(context.getExcelHeaders())) {
-
-            //所有query列，不在query的列设置默认值
-            List<String> queryColumnNames = Lists.newArrayList();
-            context.getQueryColumns().forEach(queryColumn -> {
-                queryColumnNames.add(queryColumn.getName());
-            });
-
             int rownum = 0;
             int colnum = 0;
             Map<String, QueryColumn> columnMap = context.getQueryColumns().stream().collect(Collectors.toMap(x -> x.getName(), x -> x, (v1, v2) -> v1));
